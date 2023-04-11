@@ -37,12 +37,12 @@ carroModel.MarcaId = carroDTO.MarcaId;
 carroModel.Marca = carroDTO.Marca;
 
 //verificar se existe Marca no Bd
-var marcaModel = locacaoContext.Marca.Find(carroDTO.MarcaId);
+var marcaModel = locacaoContext.marca.Find(carroDTO.MarcaId);
 
-if(marcaModel != null){
-
+if(marcaModel != null)
+{
 //add a model dentro do DBset no meu context
-            locacaoContext.Carro.Add(carroModel);
+            locacaoContext.carro.Add(carroModel);
 //depois de add na lista do DBSet, preciso salvar no BD
             locacaoContext.SaveChanges();
 //depois de salvar em passo o meu id

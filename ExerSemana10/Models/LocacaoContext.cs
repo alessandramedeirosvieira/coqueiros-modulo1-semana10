@@ -10,10 +10,8 @@ namespace ExerSemana10.Model
     {
       public LocacaoContext(DbContextOptions<LocacaoContext> options) : base(options)
       {
-
       }
-      public DbSet<CarroModel> Carro {get; set;}
-      public DbSet<MarcaModel> Marca {get; set;}
-      
-    }
+      public DbSet<CarroModel> carro {get; set;}
+      public DbSet<MarcaModel> marca {get; set;}
+      }
 }
