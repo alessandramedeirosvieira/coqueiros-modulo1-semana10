@@ -17,7 +17,7 @@ namespace ExerSemana10.Controllers
         private readonly LocacaoContext locacaoContext;
 
 //CTOR com parametros (injetado dentro dos parenteses o context)
-//se eu uma injecao tenho uma var de leitura acima e injetado do tipo context, dentro do ctor , faço a injecao de dependencia
+//se eu tenho uma injecao tenho uma var de leitura acima e injetado do tipo context, dentro do ctor , faço a injecao de dependencia
         public CarroController(LocacaoContext locacaoContext)
         {
             this.locacaoContext = locacaoContext;

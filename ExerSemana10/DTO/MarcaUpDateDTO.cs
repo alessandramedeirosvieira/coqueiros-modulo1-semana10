@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace ExerSemana10.DTO
 {
-    public class MarcaDTO
+    public class MarcaUpDateDTO
     {
-        public int Codigo { get; set; }
+      public int Codigo { get; set; }
         public string Nome { get; set; }
     }
 }
