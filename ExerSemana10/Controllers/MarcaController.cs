@@ -55,6 +55,7 @@ namespace ExerSemana10.Controllers
             if (marcaModel !=null)
             {
                 marcaModel.Id = marcaUpDateDTO.Codigo;
+                marcaModel.Nome = marcaUpDateDTO.Nome;
                 //se for diferente de null, atualizar variavel (atribuir valor)
                 //modifica no BD (dixa e depois salva)
                 locacaoContext.marca.Attach(marcaModel);
@@ -96,9 +97,25 @@ namespace ExerSemana10.Controllers
             }
         }
         [HttpGet]
-        public ActionResult get()
+        public ActionResult<List<MarcaGetDTO>> Get()
         {
-            return Ok();
+            //ActionResult sempre devolve alguma coisa
+            //preciso pegar todos os meus dados do BD (=significa recebo)
+            //alocando memoria dos dados no context GET
+            var ListMarcaModel = locacaoContext.marca;
+            //inst
+            //tipo de obj devolvido (lista), preciso percorrer a model
+            List<MarcaGetDTO> listaGetDTO = new List<MarcaGetDTO>();
+
+            foreach (var item in ListMarcaModel)
+            {
+                var marcaGetDTO = new MarcaGetDTO();
+                marcaGetDTO.Codigo = item.Id;
+                marcaGetDTO.Nome = item.Nome;
+
+                listaGetDTO.Add(marcaGetDTO);
+            }
+            return Ok(listaGetDTO);
         }
     }
 }
