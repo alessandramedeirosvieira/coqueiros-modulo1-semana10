@@ -25,105 +25,42 @@ namespace ExerSemana10.Controllers
         }
 //pensando no CRUD, se não tenho nada no BD, a ordem de execução é POST (insercao), PUT (atual.), DELETE e GET
 //se já tiver dados dentro do BD, faço primeiro o GET
-        [HttpGet]
-        public ActionResult<List<CarroDTO>> Get()
-        {
-        var listaCarroModel = locacaoContext.carro.Include(c => c.MarcaModel);
-
-        List<CarroDTO> listaCarrosDto = new();
-
-        foreach (var carro in listaCarroModel)
-        {
-            var carroDto = new CarroDTO();
-
-            carroDto.Codigo = carro.Id;
-            carroDto.Nome = carro.Nome;
-            carroDto.CodigoMarca = carro.MarcaId;
-            listaCarrosDto.Add(carroDto);
-        }
-
-        return Ok(listaCarrosDto);
-        }
-
-        [HttpGet]
-        [Route("{id}")]
-        public ActionResult GetPorId([FromRoute]int id)
-        {
-        var carroModel = locacaoContext.carro.Include(c => c.MarcaModel).FirstOrDefault(x => x.Id == id);
-
-        CarroDTO carroDto = new();
-        if (carroModel.Id == null)
-        {
-            BadRequest("Carro não encontrado");
-        }
-
-        carroDto.Codigo = carroModel.Id;
-        carroDto.Nome = carroModel.Nome;
-        carroDto.CodigoMarca = carroModel.MarcaId;
-
-        return Ok(carroDto);
-        }
+        
         [HttpPost]
-        public ActionResult Post([FromBody] CarroDTO carroDto)
+        public ActionResult Inserir([FromBody] CarroDTO carroDTO)
         {
-        CarroModel carroModel = new();
-        MarcaModel marcaModel = locacaoContext.marca.Find(carroDto.CodigoMarca);
-
-        if (marcaModel == null)
-        {
-            return NotFound("Marca não encontrada");
-        }
-
-        carroModel.Id = carroDto.Codigo;
-        carroModel.Nome = carroDto.Nome;
-        carroModel.MarcaId = marcaModel.Id;
-
-        locacaoContext.Add(carroModel);
-        locacaoContext.SaveChanges();
-
-        return Ok("Carro salvo");
-        }
-        [HttpPut]
-        public ActionResult Put([FromBody] CarroDTO carroDto)
-        {
-        CarroModel carroModel = locacaoContext.carro.Find(carroDto.Codigo);
-        MarcaModel marcaModel = locacaoContext.marca.Find(carroDto.CodigoMarca);
-
-        if (marcaModel == null)
-        {
-            return NotFound("Marca não encontrada");
-        }
-
-        if (carroModel == null)
-        {
-            return NotFound("Carro não encontrado");
-        }
-
-        carroModel.Id = carroDto.Codigo;
-        carroModel.Nome = carroDto.Nome;
-        carroModel.MarcaId = marcaModel.Id;
-
-        locacaoContext.Attach(carroModel);
-        locacaoContext.SaveChanges();
-
-        return Ok("Carro atualizado");
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public ActionResult Delete([FromRoute] int id)
-        {
-        CarroModel carroModel = locacaoContext.carro.Find(id);
-
-        if (carroModel != null)
-        {
-            locacaoContext.Remove(carroModel);
-            locacaoContext.SaveChanges();
-
-            return Ok("Carro deletado");
-        }
-
-        return BadRequest("Carro não localizado");
+            if (carroDTO == null)
+            {
+                return BadRequest("Precisa inserir dados.");
+            }
+            else
+            {
+                if (carroDTO.Codigo != 0)
+                {
+                    return BadRequest("Código deve ser igual a zero(0).");
+                }
+                else
+                {
+                    foreach(var item in locacaoContext.marca)
+                    {
+                        if (item.Id == carroDTO.CodigoMarca)
+                        {
+                            CarroModel carroModel = new CarroModel()
+                            {
+                                Id = carroDTO.Codigo,
+                                Nome = carroDTO.DescricaoCarro,
+                                DataLocacao = carroDTO.DataLocacao,
+                                Marca = item
+                            };
+                            locacaoContext.carro.Add(carroModel);
+                            locacaoContext.SaveChanges();
+                            return Ok("Salvo com sucesso.");
+                        }
+                        else { return BadRequest("Código de marca não encontrado."); }
+                    }
+                }
+            }
+            return Ok();
         }
     }
 }

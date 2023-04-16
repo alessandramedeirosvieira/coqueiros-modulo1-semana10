@@ -23,6 +23,5 @@ namespace ExerSemana10.Model
         [ForeignKey("MarcaModel")]
         public int MarcaId {get; set;}
         public MarcaModel Marca { get; set; }
-        public object MarcaModel { get; internal set; }
     }
 }

@@ -13,5 +13,6 @@ namespace ExerSemana10.DTO
         public string DescricaoCarro { get; set; }
         public int CodigoMarca { get; set; }
         public DateTime DataLocacao { get; set; }
+        public int MarcaId { get; set; }
     }
 }
