@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ExerSemana10.DTO;
 using ExerSemana10.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ExerSemana10.Controllers
@@ -22,37 +23,107 @@ namespace ExerSemana10.Controllers
         {
             this.locacaoContext = locacaoContext;
         }
-//pensando no CRUD, se não tenho nada no BD, a ordem é POST (insercao), PUT (atual.), DELETE e GET
+//pensando no CRUD, se não tenho nada no BD, a ordem de execução é POST (insercao), PUT (atual.), DELETE e GET
 //se já tiver dados dentro do BD, faço primeiro o GET
-    [HttpPost]
-        public ActionResult <CarroCreateDTO> Post([FromBody] CarroCreateDTO carroDTO)
+        [HttpGet]
+        public ActionResult<List<CarroDTO>> Get()
         {
-//instanciar minha carroModel
-//passar meus parametros para a inst criada no metodo post
-//id não
-CarroModel carroModel = new CarroModel();
-carroModel.Nome = carroDTO.Nome;
-carroModel.DataLocacao = carroDTO.DataLocacao;
-carroModel.MarcaId = carroDTO.MarcaId;
-carroModel.Marca = carroDTO.Marca;
+        var listaCarroModel = locacaoContext.carro.Include(c => c.MarcaModel);
 
-//verificar se existe Marca no Bd
-var marcaModel = locacaoContext.marca.Find(carroDTO.MarcaId);
+        List<CarroDTO> listaCarrosDto = new();
 
-if(marcaModel != null)
-{
-//add a model dentro do DBset no meu context
-            locacaoContext.carro.Add(carroModel);
-//depois de add na lista do DBSet, preciso salvar no BD
+        foreach (var carro in listaCarroModel)
+        {
+            var carroDto = new CarroDTO();
+
+            carroDto.Codigo = carro.Id;
+            carroDto.Nome = carro.Nome;
+            carroDto.CodigoMarca = carro.MarcaId;
+            listaCarrosDto.Add(carroDto);
+        }
+
+        return Ok(listaCarrosDto);
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public ActionResult GetPorId([FromRoute]int id)
+        {
+        var carroModel = locacaoContext.carro.Include(c => c.MarcaModel).FirstOrDefault(x => x.Id == id);
+
+        CarroDTO carroDto = new();
+        if (carroModel.Id == null)
+        {
+            BadRequest("Carro não encontrado");
+        }
+
+        carroDto.Codigo = carroModel.Id;
+        carroDto.Nome = carroModel.Nome;
+        carroDto.CodigoMarca = carroModel.MarcaId;
+
+        return Ok(carroDto);
+        }
+        [HttpPost]
+        public ActionResult Post([FromBody] CarroDTO carroDto)
+        {
+        CarroModel carroModel = new();
+        MarcaModel marcaModel = locacaoContext.marca.Find(carroDto.CodigoMarca);
+
+        if (marcaModel == null)
+        {
+            return NotFound("Marca não encontrada");
+        }
+
+        carroModel.Id = carroDto.Codigo;
+        carroModel.Nome = carroDto.Nome;
+        carroModel.MarcaId = marcaModel.Id;
+
+        locacaoContext.Add(carroModel);
+        locacaoContext.SaveChanges();
+
+        return Ok("Carro salvo");
+        }
+        [HttpPut]
+        public ActionResult Put([FromBody] CarroDTO carroDto)
+        {
+        CarroModel carroModel = locacaoContext.carro.Find(carroDto.Codigo);
+        MarcaModel marcaModel = locacaoContext.marca.Find(carroDto.CodigoMarca);
+
+        if (marcaModel == null)
+        {
+            return NotFound("Marca não encontrada");
+        }
+
+        if (carroModel == null)
+        {
+            return NotFound("Carro não encontrado");
+        }
+
+        carroModel.Id = carroDto.Codigo;
+        carroModel.Nome = carroDto.Nome;
+        carroModel.MarcaId = marcaModel.Id;
+
+        locacaoContext.Attach(carroModel);
+        locacaoContext.SaveChanges();
+
+        return Ok("Carro atualizado");
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public ActionResult Delete([FromRoute] int id)
+        {
+        CarroModel carroModel = locacaoContext.carro.Find(id);
+
+        if (carroModel != null)
+        {
+            locacaoContext.Remove(carroModel);
             locacaoContext.SaveChanges();
-//depois de salvar em passo o meu id
-            carroDTO.Id = carroModel.Id;
-             return Ok(carroDTO);
-}
-else{
-//se for null retorno um request de erro
-            return BadRequest ("Erro ao atualizar o registro");
-    }
+
+            return Ok("Carro deletado");
+        }
+
+        return BadRequest("Carro não localizado");
         }
     }
 }

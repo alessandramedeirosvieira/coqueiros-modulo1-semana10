@@ -24,6 +24,48 @@ namespace ExerSemana10.Controllers
         }
         //para especificar o tipo de objeto a ser devolvido sinalizo com <> depois do Post
         //aqui estamos recebendo e devolvendo um objeto (nome)
+
+        [HttpGet]
+        public ActionResult<List<MarcaGetDTO>> Get()
+        {
+            //ActionResult sempre devolve alguma coisa
+            //preciso pegar todos os meus dados do BD (=significa recebo)
+            //alocando memoria dos dados no context GET
+            var ListMarcaModel = locacaoContext.marca;
+            //inst
+            //tipo de obj devolvido (lista), preciso percorrer a model
+            List<MarcaGetDTO> listaGetDTO = new List<MarcaGetDTO>();
+
+            foreach (var item in ListMarcaModel)
+            {
+                var marcaGetDTO = new MarcaGetDTO();
+                marcaGetDTO.Codigo = item.Id;
+                marcaGetDTO.Nome = item.Nome;
+
+                listaGetDTO.Add(marcaGetDTO);
+            }
+            return Ok(listaGetDTO);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<MarcaGetDTO> Get([FromRoute] int id)
+        {
+            //Buscar o registro no BD por Id
+            //var marcaModel = locacaoContext.marca.Find(id);
+            var marcaModel = locacaoContext.marca.Where(w => w.Id == id).FirstOrDefault();
+
+            if (marcaModel == null)
+            {
+                return BadRequest("Dados não encontrados no BD");
+            }
+
+            //Modificar de marcaModel para MarcaGetDTO
+            MarcaGetDTO marcaGetDTO = new MarcaGetDTO();
+            marcaGetDTO.Codigo = marcaModel.Id;
+            marcaGetDTO.Nome = marcaModel.Nome;
+            return Ok(marcaGetDTO);
+        }
+
         [HttpPost]
         public ActionResult Post ([FromBody] MarcaCreateDTO marcaCreateDTO)
         {
@@ -95,27 +137,6 @@ namespace ExerSemana10.Controllers
                 //devolve o status 400 
                 return BadRequest("erro ao atualizar o registro");
             }
-        }
-        [HttpGet]
-        public ActionResult<List<MarcaGetDTO>> Get()
-        {
-            //ActionResult sempre devolve alguma coisa
-            //preciso pegar todos os meus dados do BD (=significa recebo)
-            //alocando memoria dos dados no context GET
-            var ListMarcaModel = locacaoContext.marca;
-            //inst
-            //tipo de obj devolvido (lista), preciso percorrer a model
-            List<MarcaGetDTO> listaGetDTO = new List<MarcaGetDTO>();
-
-            foreach (var item in ListMarcaModel)
-            {
-                var marcaGetDTO = new MarcaGetDTO();
-                marcaGetDTO.Codigo = item.Id;
-                marcaGetDTO.Nome = item.Nome;
-
-                listaGetDTO.Add(marcaGetDTO);
-            }
-            return Ok(listaGetDTO);
         }
     }
 }

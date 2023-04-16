@@ -6,12 +6,12 @@ using ExerSemana10.Model;
 
 namespace ExerSemana10.DTO
 {
-    public class CarroCreateDTO
+    public class CarroDTO
     {
-        public int Id { get; set; }
+        public int Codigo { get; set; }
         public string Nome { get; set; }
+        public string DescricaoCarro { get; set; }
+        public int CodigoMarca { get; set; }
         public DateTime DataLocacao { get; set; }
-        public int MarcaId {get; set;}
-        public MarcaModel Marca { get; set; }
     }
 }
